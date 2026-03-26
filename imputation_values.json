@@ -1,0 +1,58 @@
+{
+    "imputation": {
+        "numeric": {
+            "Transaction_Amount": 69.66,
+            "Account_Balance": 50384.43,
+            "IP_Address_Flag": 0.0,
+            "Daily_Transaction_Count": 7.0,
+            "Avg_Transaction_Amount_7d": 256.085,
+            "Failed_Transaction_Count_7d": 2.0,
+            "Card_Age": 120.0,
+            "Transaction_Distance": 2490.785,
+            "Is_Weekend": 0.0,
+            "Age": 45.0,
+            "Monthly_Income_PKR": 109000.0,
+            "Account_Age_Years": 7.7,
+            "Transaction_Hour": 12.0,
+            "Amount_to_Balance_Ratio": 0.001577803569514921
+        },
+        "categorical": {
+            "Transaction_Type": "POS",
+            "Device_Type": "Tablet",
+            "Location": "Tokyo",
+            "Merchant_Category": "Clothing",
+            "Card_Type": "Mastercard",
+            "Authentication_Method": "Biometric",
+            "Gender": "Female",
+            "City": "Islamabad",
+            "Profession": "Shopkeeper",
+            "Account_Type": "Savings"
+        }
+    },
+    "feature_columns": [
+        "Transaction_Amount",
+        "Transaction_Type",
+        "Account_Balance",
+        "Device_Type",
+        "Location",
+        "Merchant_Category",
+        "IP_Address_Flag",
+        "Daily_Transaction_Count",
+        "Avg_Transaction_Amount_7d",
+        "Failed_Transaction_Count_7d",
+        "Card_Type",
+        "Card_Age",
+        "Transaction_Distance",
+        "Authentication_Method",
+        "Is_Weekend",
+        "Age",
+        "Gender",
+        "City",
+        "Profession",
+        "Monthly_Income_PKR",
+        "Account_Type",
+        "Account_Age_Years",
+        "Transaction_Hour",
+        "Amount_to_Balance_Ratio"
+    ]
+}

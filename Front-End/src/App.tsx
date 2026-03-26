@@ -7,6 +7,7 @@ const LoginPage = lazy(() => import('./pages/login/LoginPage').then(m => ({ defa
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const KYCPage = lazy(() => import('./pages/kyc/KYCPage').then(m => ({ default: m.KYCPage })));
 const SimulatorPage = lazy(() => import('./pages/simulator/SimulatorPage').then(m => ({ default: m.SimulatorPage })));
+const TransactionAnalyzerPage = lazy(() => import('./pages/analyzer/TransactionAnalyzerPage').then(m => ({ default: m.TransactionAnalyzerPage })));
 import { ProtectedRoute } from './utils/ProtectedRoute';
 import './App.css';
 
@@ -38,6 +39,14 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <SimulatorPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analyzer"
+              element={
+                <ProtectedRoute>
+                  <TransactionAnalyzerPage />
                 </ProtectedRoute>
               }
             />

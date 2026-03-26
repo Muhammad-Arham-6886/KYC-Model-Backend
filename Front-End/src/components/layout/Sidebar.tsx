@@ -48,6 +48,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
       icon: <ExperimentOutlined />,
       label: 'Simulator',
     },
+    {
+      key: '/analyzer',
+      icon: <SecurityScanFilled />,
+      label: 'Transaction Analyzer',
+    },
   ];
 
   const userMenu = {

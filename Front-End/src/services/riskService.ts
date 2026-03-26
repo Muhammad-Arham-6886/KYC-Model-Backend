@@ -29,6 +29,17 @@ export const riskService = {
     }
   },
 
+  // Evaluate single transaction (FastAPI Integration)
+  async evaluateTransactionRisk(transactionData: any): Promise<{risk_score: number, risk_level: string} | null> {
+    try {
+      const response = await apiClient.post('/risk/score', transactionData);
+      return response.data;
+    } catch (error) {
+      console.error('Error evaluating transaction risk via API:', error);
+      return null;
+    }
+  },
+
   // Get risk score for customer
   async getCustomerRiskScore(customerId: string): Promise<RiskScore | null> {
     try {
