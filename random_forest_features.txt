@@ -1,0 +1,49 @@
+Original Features Used (Post-Processing):
+- Transaction_Amount (Numeric)
+- Account_Balance (Numeric)
+- Daily_Transaction_Count (Numeric)
+- Avg_Transaction_Amount_7d (Numeric)
+- Failed_Transaction_Count_7d (Numeric)
+- Card_Age (Numeric)
+- Transaction_Distance (Numeric)
+- Risk_Score (Numeric)
+- Is_Weekend (Numeric / Binary)
+- Age (Numeric)
+- Monthly_Income_PKR (Numeric)
+- Account_Age_Years (Numeric)
+- Transaction_Type (Categorical - Encoded)
+- Device_Type (Categorical - Encoded)
+- Location (Categorical - Encoded)
+- Merchant_Category (Categorical - Encoded)
+- IP_Address_Flag (Categorical - Encoded)
+- Previous_Fraudulent_Activity (Categorical - Encoded)
+- Card_Type (Categorical - Encoded)
+- Authentication_Method (Categorical - Encoded)
+- Gender (Categorical - Encoded)
+- City (Categorical - Encoded)
+- Profession (Categorical - Encoded)
+- Account_Type (Categorical - Encoded)
+
+Newly Engineered Features:
+1. Transaction_Hour: 
+   - Reason for addition: Fraudulent transactions often exhibit temporal patterns (e.g., occurring late at night or unusual hours for the user). Extracting the hour from the 'Timestamp' allows the Random Forest model to capture these temporal risks.
+
+2. Amount_to_Balance_Ratio: 
+   - Reason for addition: The ratio of the transaction amount to the total account balance can be a strong indicator of risk. A very high ratio (e.g., trying to drain the entire account) is highly suspicious and common in account takeover frauds.
+
+Frontend Modifications Required:
+No completely new inputs necessarily need to be collected from the user directly for the engineered features, as they are derived from existing fields:
+- `Transaction_Hour` is parsed directly from the standard `Timestamp` data sent by the frontend during the transaction event.
+- `Amount_to_Balance_Ratio` is calculated centrally on the backend using the requested `Transaction_Amount` and the known `Account_Balance`.
+
+However, the following additions should be made to the respective frontend modules for better visibility and monitoring:
+
+1. KYC Module:
+   - No direct changes needed. existing fields (Age, Income, Profession) are sufficient.
+
+2. Simulator Module:
+   - Ensure that the "Timestamp" or "Current Time" of the simulated transaction is explicitly visible and adjustable to test temporal fraud rules (e.g., simulating a 3 AM transaction).
+
+3. Dashboard Module:
+   - Add a widget or chart displaying the distribution of `Transaction_Hour` for flagged vs. non-flagged transactions.
+   - Add a metric showing the "Average Amount to Balance Ratio" for transactions flagged as risky.
