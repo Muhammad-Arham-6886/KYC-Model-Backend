@@ -21,7 +21,7 @@ class TransactionRequest(BaseModel):
     # Categorical features
     Transaction_Type: Optional[str] = None
     Device_Type: Optional[str] = None
-    Location: Optional[str] = None
+    Bank_Name: Optional[str] = None
     Merchant_Category: Optional[str] = None
     Card_Type: Optional[str] = None
     Authentication_Method: Optional[str] = None
@@ -33,6 +33,17 @@ class TransactionRequest(BaseModel):
     # Raw feature for engineering
     Timestamp: Optional[str] = None
 
+    Customer_Name: Optional[str] = None
+
+    # Compliance Simulation Flags
+    Is_Cash_Structuring: Optional[bool] = None
+    Deviation_Score: Optional[float] = None
+    Is_Hub_Portfolio: Optional[bool] = None
+    Is_Layering_Loop: Optional[bool] = None
+    Foreign_KYC_Mismatch: Optional[bool] = None
+    Property_Doc_Missing: Optional[bool] = None
+
 class RiskResponse(BaseModel):
     risk_score: float
     risk_level: str
+    flags: Optional[list[str]] = None

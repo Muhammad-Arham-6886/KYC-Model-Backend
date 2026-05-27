@@ -1,11 +1,11 @@
 {
     "imputation": {
         "numeric": {
-            "Transaction_Amount": 69.66,
-            "Account_Balance": 50384.43,
+            "Transaction_Amount": 19504.8,
+            "Account_Balance": 14107640.4,
             "IP_Address_Flag": 0.0,
             "Daily_Transaction_Count": 7.0,
-            "Avg_Transaction_Amount_7d": 256.085,
+            "Avg_Transaction_Amount_7d": 71703.79999999999,
             "Failed_Transaction_Count_7d": 2.0,
             "Card_Age": 120.0,
             "Transaction_Distance": 2490.785,
@@ -14,19 +14,19 @@
             "Monthly_Income_PKR": 109000.0,
             "Account_Age_Years": 7.7,
             "Transaction_Hour": 12.0,
-            "Amount_to_Balance_Ratio": 0.001577803569514921
+            "Amount_to_Balance_Ratio": 0.0015778035698937399
         },
         "categorical": {
             "Transaction_Type": "POS",
             "Device_Type": "Tablet",
-            "Location": "Tokyo",
             "Merchant_Category": "Clothing",
             "Card_Type": "Mastercard",
             "Authentication_Method": "Biometric",
             "Gender": "Female",
             "City": "Islamabad",
             "Profession": "Shopkeeper",
-            "Account_Type": "Savings"
+            "Account_Type": "Savings",
+            "Bank_Name": "Allied Bank"
         }
     },
     "feature_columns": [
@@ -34,7 +34,6 @@
         "Transaction_Type",
         "Account_Balance",
         "Device_Type",
-        "Location",
         "Merchant_Category",
         "IP_Address_Flag",
         "Daily_Transaction_Count",
@@ -52,6 +51,7 @@
         "Monthly_Income_PKR",
         "Account_Type",
         "Account_Age_Years",
+        "Bank_Name",
         "Transaction_Hour",
         "Amount_to_Balance_Ratio"
     ]

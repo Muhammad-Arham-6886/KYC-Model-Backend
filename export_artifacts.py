@@ -5,7 +5,7 @@ import joblib
 import json
 
 def generate_artifacts():
-    filepath = r"c:/My Files/University/Final Year Project/backend/base-testing model/Datasets/merged_kyc_fraud_dataset.csv"
+    filepath = r"c:/My Files/University/Final Year Project/backend/base-testing model/Datasets/final_kyc_fraud_dataset.csv"
     
     print("Loading dataset...")
     df = pd.read_csv(filepath)

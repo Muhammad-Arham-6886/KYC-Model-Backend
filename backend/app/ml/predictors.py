@@ -21,14 +21,103 @@ with open(IMPUTATION_PATH, "r") as f:
     imputation_values = imputation_data["imputation"]
     ordered_features = imputation_data["feature_columns"]
 
+from sqlalchemy import create_engine
+from datetime import datetime
+
+# Initialize Database Engine
+DB_PATH = os.path.join(BASE_DIR, "ml_results.db")
+engine = create_engine(f"sqlite:///{DB_PATH}")
+
 def predict_risk(data: dict) -> dict:
-    # 0. Hard Business Rules (Immediate Overrides)
+    result = _predict_risk_internal(data)
+    
+    # Save to Database
+    try:
+        record = {
+            "customer_name": data.get("Customer_Name", "Unknown"),
+            "transaction_amount": data.get("Transaction_Amount"),
+            "account_balance": data.get("Account_Balance"),
+            "risk_score": result["risk_score"],
+            "risk_level": result["risk_level"],
+            "flags": json.dumps(result.get("flags", [])),
+            "model_version": "v1.0",
+            "created_at": datetime.now().isoformat()
+        }
+        df = pd.DataFrame([record])
+        df.to_sql("predictions", engine, if_exists="append", index=False)
+    except Exception as e:
+        print(f"Failed to save prediction to DB: {e}")
+        
+    return result
+
+def _predict_risk_internal(data: dict) -> dict:
+    # Hard Business Rules & State Bank Compliance Rules
     amt = data.get('Transaction_Amount')
     bal = data.get('Account_Balance')
+    
+    # 1. Impossible Transaction
     if amt is not None and bal is not None and float(amt) > float(bal):
         return {
             "risk_score": 0.99,
-            "risk_level": "High"
+            "risk_level": "Blocked (Insufficient Funds)",
+            "flags": ["Block transaction before ML"]
+        }
+        
+    # 2. Property Document Missing
+    if data.get('Property_Doc_Missing'):
+        return {
+            "risk_score": 0.98,
+            "risk_level": "High (Account Hold)",
+            "flags": ["Property excuse repeated, documents missing"]
+        }
+        
+    # 3. Layering Loop Detected
+    if data.get('Is_Layering_Loop'):
+        return {
+            "risk_score": 0.95,
+            "risk_level": "High (STR Review)",
+            "flags": ["Money layering loop detected"]
+        }
+        
+    # 4. Hub Portfolio
+    if data.get('Is_Hub_Portfolio'):
+        return {
+            "risk_score": 0.95,
+            "risk_level": "High (High-Risk Alert)",
+            "flags": ["Personal account used as payment gateway"]
+        }
+        
+    # 5. Foreign KYC Mismatch
+    if data.get('Foreign_KYC_Mismatch'):
+        return {
+            "risk_score": 0.90,
+            "risk_level": "High (EDD/STR Review)",
+            "flags": ["Foreign transfer mismatch"]
+        }
+        
+    # 6. Cash Structuring
+    if data.get('Is_Cash_Structuring'):
+        return {
+            "risk_score": 0.85,
+            "risk_level": "High (STR Review)",
+            "flags": ["Multiple cash transactions slightly below threshold"]
+        }
+
+    # 7. Cash Transaction Limit
+    if amt is not None and float(amt) >= 2000000:
+        return {
+            "risk_score": 0.79,
+            "risk_level": "Medium (CTR Review)",
+            "flags": ["Cash transaction limit reached"]
+        }
+        
+    # 8. Deviation Score Breached
+    dev_score = data.get('Deviation_Score')
+    if dev_score is not None and float(dev_score) > 100:
+        return {
+            "risk_score": 0.75,
+            "risk_level": "Medium (Abnormal Activity)",
+            "flags": ["Customer activity exceeds deviation score"]
         }
 
     df = pd.DataFrame([data])
@@ -79,8 +168,13 @@ def predict_risk(data: dict) -> dict:
     # 6. Predict
     prob = rf_model.predict_proba(X_scaled)[0, 1]
     
-    # Threshold 0.3 as defined in training `(y_prob > 0.3).astype(int)`
-    level = "High" if prob > 0.3 else "Low"
+    # Thresholding logic updated to include Medium
+    if prob >= 0.80:
+        level = "High"
+    elif prob >= 0.25:
+        level = "Medium"
+    else:
+        level = "Low"
     
     return {
         "risk_score": float(prob),
