@@ -22,12 +22,11 @@ interface SidebarProps {
   setCollapsed?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { activeAlerts } = useAppSelector((state) => state.alert);
 
   const handleLogout = () => {
     dispatch(logout());
