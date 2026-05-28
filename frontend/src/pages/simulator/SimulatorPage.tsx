@@ -39,8 +39,7 @@ export const SimulatorPage: React.FC = () => {
       
       const { transactionCount, timespanDays } = simulationParams;
       
-      for (let i = 0; i < transactionCount; i++) {
-        // Randomly scatter transactions across requested day span
+      const promises = Array.from({ length: transactionCount }).map(async (_, i) => {
         const randomDays = Math.floor(Math.random() * timespanDays);
         const randomDate = new Date();
         randomDate.setDate(randomDate.getDate() - randomDays);
@@ -52,7 +51,6 @@ export const SimulatorPage: React.FC = () => {
         const bankNames = ['MCB', 'UBL', 'HBL', 'Allied Bank', 'Meezan'];
         const types = ['POS', 'E-Commerce', 'ATM', 'Bank_Transfer'];
         
-        // Randomly inject compliance flags (15% chance total)
         const rand = Math.random();
         let complianceFlags = {};
         if (rand < 0.03) complianceFlags = { Is_Layering_Loop: true };
@@ -112,8 +110,13 @@ export const SimulatorPage: React.FC = () => {
         } catch(e) {
            console.error("Simulation error", e);
         }
-      }
+      });
       
+      await Promise.all(promises);
+      dispatch(setIsSimulating(false));
+      dispatch(setLoading(false));
+    }).catch((err) => {
+      console.error("Validation failed", err);
       dispatch(setIsSimulating(false));
       dispatch(setLoading(false));
     });
@@ -232,21 +235,26 @@ export const SimulatorPage: React.FC = () => {
           <Row gutter={[16, 16]} className="h-full">
             <Col span={24}>
               <Card bodyStyle={{ padding: 12 }} className="h-auto shadow-sm" bordered={false}>
-                <Row justify="space-around">
-                  <Col span={8} className="text-center border-r border-slate-100">
+                <Row gutter={[16, 16]} justify="space-around">
+                  <Col xs={24} sm={8} className="text-center sm:border-r border-slate-100">
                     <Statistic title="Total Transactions" value={transactions.length} prefix={<ThunderboltOutlined />} />
                   </Col>
-                  <Col span={8} className="text-center border-r border-slate-100">
+                  <Col xs={24} sm={8} className="text-center sm:border-r border-slate-100">
                     <Statistic
                       title="Total Volume"
                       value={transactions.reduce((acc, t) => acc + t.amount, 0)}
                       prefix="PKR"
                       precision={0}
-                      formatter={(val) => val ? val.toLocaleString() : ''}
+                      formatter={(val) => (val !== undefined && val !== null) ? val.toLocaleString() : '0'}
                     />
                   </Col>
-                  <Col span={8} className="text-center">
-                    <Statistic title="Avg Amount" value={transactions.length ? Math.round(transactions.reduce((acc, t) => acc + t.amount, 0) / transactions.length) : 0} prefix="PKR" />
+                  <Col xs={24} sm={8} className="text-center">
+                    <Statistic 
+                      title="Avg Amount" 
+                      value={transactions.length ? Math.round(transactions.reduce((acc, t) => acc + t.amount, 0) / transactions.length) : 0} 
+                      prefix="PKR" 
+                      formatter={(val) => (val !== undefined && val !== null) ? val.toLocaleString() : '0'}
+                    />
                   </Col>
                 </Row>
               </Card>

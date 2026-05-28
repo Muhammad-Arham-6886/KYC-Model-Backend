@@ -56,3 +56,11 @@
         margin-bottom: 30px !important;
     }
 }
+
+/* Mobile Layout Overrides */
+@media (max-width: 768px) {
+    .login-content {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}

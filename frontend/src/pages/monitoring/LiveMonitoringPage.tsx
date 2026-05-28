@@ -161,6 +161,7 @@ export const LiveMonitoringPage: React.FC = () => {
                     loading={loading}
                     pagination={{ pageSize: 10 }}
                     size="middle"
+                    scroll={{ x: 'max-content' }}
                   />
                 </div>
               )
@@ -180,7 +181,7 @@ export const LiveMonitoringPage: React.FC = () => {
                   {riskAlerts.some(a => a.actionRequired) && (
                     <Alert message="Critical Action Required" description="High-risk behavior detected in multiple accounts." type="error" showIcon className="mb-4 rounded-lg" />
                   )}
-                  <Table dataSource={riskAlerts} columns={alertColumns} rowKey="id" pagination={{ pageSize: 10 }} />
+                  <Table dataSource={riskAlerts} columns={alertColumns} rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: 'max-content' }} />
                 </div>
               )
             },
@@ -195,6 +196,7 @@ export const LiveMonitoringPage: React.FC = () => {
                     rowKey="id"
                     size="small"
                     pagination={{ pageSize: 15 }}
+                    scroll={{ x: 'max-content' }}
                   />
                 </div>
               )

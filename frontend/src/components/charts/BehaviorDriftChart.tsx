@@ -40,14 +40,16 @@ export const BehaviorDriftChart: React.FC<BehaviorDriftChartProps> = ({ history 
 
   if (!chartData || chartData.length === 0) {
     return (
-      <Card title="Behavior Drift Analysis" bordered={false} className="shadow-sm h-full">
+      <div className="w-full h-full flex flex-col">
+         <div className="font-semibold text-slate-800 mb-4 px-2">Live Behavior Drift Analysis</div>
          <div style={{ textAlign: 'center', padding: '40px' }}>No timeline data available</div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card title="Live Behavior Drift Analysis" bordered={false} className="shadow-sm h-full">
+    <div className="w-full h-full flex flex-col">
+      <div className="font-semibold text-slate-800 mb-4 px-2">Live Behavior Drift Analysis</div>
       <ResponsiveContainer width="100%" height={350}>
         <LineChart data={chartData} syncId="dashboardTimeline" margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -87,7 +89,7 @@ export const BehaviorDriftChart: React.FC<BehaviorDriftChartProps> = ({ history 
           <Brush dataKey="time" height={30} stroke="#8884d8" />
         </LineChart>
       </ResponsiveContainer>
-    </Card>
+    </div>
   );
 };
 

@@ -4,6 +4,7 @@ import { ReloadOutlined, CheckCircleFilled, WarningFilled, FireFilled, CaretUpOu
 import { riskService } from '../../services/riskService';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { useAppSelector } from '../../hooks/reduxHooks';
+import './DashboardPage.css';
 
 const RiskScoreChart = lazy(() => import('../../components/charts/RiskScoreChart'));
 const BehaviorDriftChart = lazy(() => import('../../components/charts/BehaviorDriftChart'));
@@ -88,6 +89,7 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <MainLayout>
+      <div className="dashboard-page">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 pt-4">
         <div>
           <Title level={4} className="m-0 text-slate-800">System Overview</Title>
@@ -155,6 +157,7 @@ export const DashboardPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      </div>
     </MainLayout>
   );
 };

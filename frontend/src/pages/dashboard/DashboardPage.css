@@ -22,3 +22,43 @@
 .animate-pulse-soft {
   animation: pulse-soft 2s ease-in-out infinite;
 }
+
+@media (min-width: 769px) {
+  .dashboard-page {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      flex-direction: column;
+      gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-page {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+  }
+
+  .dashboard-page .ant-col.ant-col-xs-24.ant-col-sm-12.ant-col-lg-6 {
+      contain-intrinsic-block-size: auto 100px;
+      width: 100% !important;
+      padding: 0 !important;
+  }
+
+  .dashboard-page .ant-row,
+  .ant-row.css-dev-only-do-not-override-1uga22k.css-var-root {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-bottom: 0 !important;
+      margin-top: 20px !important;
+  }
+
+  .dashboard-page .ant-col.ant-col-xs-24.ant-col-lg-8 {
+      padding: 0 !important;
+  }
+
+  .dashboard-page .ant-col.ant-col-xs-24.ant-col-lg-16 {
+      padding: 0 !important;
+  }
+}
