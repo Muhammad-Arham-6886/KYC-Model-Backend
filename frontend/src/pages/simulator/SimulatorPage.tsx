@@ -2,6 +2,7 @@ import React, { useEffect, lazy, Suspense } from 'react';
 import { Card, Button, Form, Select, InputNumber, Table, Tag, Row, Col, Statistic, Alert, notification } from 'antd';
 import { PlayCircleOutlined, PauseCircleOutlined, ClearOutlined, ThunderboltOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { store } from '../../store';
 import {
   setTransactions,
   setIsSimulating,
@@ -40,6 +41,8 @@ export const SimulatorPage: React.FC = () => {
       const { transactionCount, timespanDays } = simulationParams;
       
       for (let i = 0; i < transactionCount; i++) {
+        if (!store.getState().transaction.isSimulating) break;
+
         const randomDays = Math.floor(Math.random() * timespanDays);
         const randomDate = new Date();
         randomDate.setDate(randomDate.getDate() - randomDays);
