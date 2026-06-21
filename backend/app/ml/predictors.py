@@ -41,7 +41,7 @@ def predict_risk(data: dict) -> dict:
             "risk_level": result["risk_level"],
             "flags": json.dumps(result.get("flags", [])),
             "model_version": "v1.0",
-            "created_at": datetime.now().isoformat()
+            "created_at": data.get("Timestamp") or datetime.now().isoformat()
         }
         df = pd.DataFrame([record])
         df.to_sql("predictions", engine, if_exists="append", index=False)

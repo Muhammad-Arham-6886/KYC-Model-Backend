@@ -136,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
         {/* User Profile Section - Bottom Fixed */}
         <div className="p-5 bg-slate-900/80 backdrop-blur-md border-t border-white/5 shrink-0">
           <Dropdown menu={userMenu} placement="topRight" trigger={['click']}>
-            <div 
+            <div
               className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} w-full transition-all cursor-pointer group hover:bg-white/10 rounded-xl`}
               style={{ padding: '10px' }}
             >

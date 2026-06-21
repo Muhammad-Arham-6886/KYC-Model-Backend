@@ -141,31 +141,11 @@ export const LiveMonitoringPage: React.FC = () => {
 
       <Card className="shadow-sm rounded-2xl border border-slate-100" bordered={false} bodyStyle={{ padding: 0 }}>
         <Tabs
-          defaultActiveKey="1"
+          defaultActiveKey="2"
           size="large"
           tabBarStyle={{ padding: '0 24px' }}
           items={[
-            {
-              key: '1',
-              label: 'Live Monitoring',
-              children: (
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-4 px-2">
-                    <Badge status="processing" color="blue" />
-                    <Text strong className="text-slate-700">Live Transaction Feed</Text>
-                  </div>
-                  <Table
-                    columns={columns}
-                    dataSource={data}
-                    rowKey={(record) => record.created_at + record.risk_score}
-                    loading={loading}
-                    pagination={{ pageSize: 10 }}
-                    size="middle"
-                    scroll={{ x: 'max-content' }}
-                  />
-                </div>
-              )
-            },
+            /* Live Monitoring tab temporarily removed */
             {
               key: '2',
               label: (

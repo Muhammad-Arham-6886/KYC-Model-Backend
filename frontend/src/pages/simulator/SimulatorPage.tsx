@@ -39,14 +39,47 @@ export const SimulatorPage: React.FC = () => {
       
       const { transactionCount, timespanDays } = simulationParams;
       
-      const promises = Array.from({ length: transactionCount }).map(async (_, i) => {
+      for (let i = 0; i < transactionCount; i++) {
         const randomDays = Math.floor(Math.random() * timespanDays);
         const randomDate = new Date();
         randomDate.setDate(randomDate.getDate() - randomDays);
+        // Generate organic timestamps between 08:00 and 23:00
+        const randomHour = Math.floor(Math.random() * 15) + 8; // 8 to 22
+        const randomMinute = Math.floor(Math.random() * 60);
+        const randomSecond = Math.floor(Math.random() * 60);
+        randomDate.setHours(randomHour, randomMinute, randomSecond);
         
-        const minAmount = 5000;
-        const maxAmount = 2000000;
-        const generatedAmount = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount;
+        const selectedProfile = profiles.find(p => p.id === (simulationParams.customerId || form.getFieldValue('customerId')));
+        const customerName = selectedProfile ? selectedProfile.name : 'Unknown Customer';
+        const occupation = selectedProfile ? selectedProfile.occupation : 'Other';
+        const income = selectedProfile && selectedProfile.expectedIncome ? selectedProfile.expectedIncome : 50000;
+
+        const rules: Record<string, any> = {
+            'Student': { ceiling: 15000, hard_max: 35000 },
+            'Housewife': { ceiling: 8000, hard_max: 20000 },
+            'Engineer': { ceiling: 80000, hard_max: 150000 },
+            'Retired': { ceiling: 25000, hard_max: 60000 },
+            'Business Owner': { ceiling: 200000, hard_max: 500000 },
+            'Other': { ceiling: 40000, hard_max: 100000 }
+        };
+        const profRule = rules[occupation] || rules['Other'];
+
+        // Generate organic amount
+        let generatedAmount = 0;
+        if (Math.random() < 0.15) {
+            // Anomaly amount
+            generatedAmount = Math.floor(Math.random() * (profRule.hard_max - profRule.ceiling)) + profRule.ceiling;
+        } else {
+            // Normal amount
+            if (Math.random() < 0.6) {
+                generatedAmount = Math.floor(Math.random() * (profRule.ceiling * 0.3 - 500)) + 500;
+            } else {
+                generatedAmount = Math.floor(Math.random() * (profRule.ceiling - profRule.ceiling * 0.3)) + (profRule.ceiling * 0.3);
+            }
+        }
+        
+        // Balance = 2x to 5x of expected income
+        const accountBalance = Math.floor(income * (Math.random() * 3 + 2));
 
         const bankNames = ['MCB', 'UBL', 'HBL', 'Allied Bank', 'Meezan'];
         const types = ['POS', 'E-Commerce', 'ATM', 'Bank_Transfer'];
@@ -58,14 +91,12 @@ export const SimulatorPage: React.FC = () => {
         else if (rand < 0.09) complianceFlags = { Is_Hub_Portfolio: true };
         else if (rand < 0.12) complianceFlags = { Property_Doc_Missing: true };
         else if (rand < 0.15) complianceFlags = { Is_Cash_Structuring: true };
-        
-        const selectedProfile = profiles.find(p => p.id === (simulationParams.customerId || form.getFieldValue('customerId')));
-        const customerName = selectedProfile ? selectedProfile.name : 'Unknown Customer';
 
         const mlPayload = {
           Customer_Name: customerName,
           Transaction_Amount: generatedAmount,
-          Account_Balance: generatedAmount * Math.floor(Math.random() * 10 + 1), 
+          Account_Balance: accountBalance,
+          Timestamp: randomDate.toISOString(),
           Transaction_Type: types[Math.floor(Math.random() * types.length)],
           Device_Type: ['Mobile', 'Desktop', 'Tablet'][Math.floor(Math.random() * 3)],
           Bank_Name: bankNames[Math.floor(Math.random() * bankNames.length)],
@@ -110,9 +141,7 @@ export const SimulatorPage: React.FC = () => {
         } catch(e) {
            console.error("Simulation error", e);
         }
-      });
-      
-      await Promise.all(promises);
+      }
       dispatch(setIsSimulating(false));
       dispatch(setLoading(false));
     }).catch((err) => {
