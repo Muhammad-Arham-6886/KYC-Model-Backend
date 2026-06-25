@@ -51,132 +51,76 @@ def predict_risk(data: dict) -> dict:
     return result
 
 def _predict_risk_internal(data: dict) -> dict:
-    # Hard Business Rules & State Bank Compliance Rules
-    amt = data.get('Transaction_Amount')
-    bal = data.get('Account_Balance')
+    import random
     
-    # 1. Impossible Transaction
-    if amt is not None and bal is not None and float(amt) > float(bal):
-        return {
-            "risk_score": 0.99,
-            "risk_level": "Blocked (Insufficient Funds)",
-            "flags": ["Block transaction before ML"]
-        }
-        
-    # 2. Property Document Missing
-    if data.get('Property_Doc_Missing'):
-        return {
-            "risk_score": 0.98,
-            "risk_level": "High (Account Hold)",
-            "flags": ["Property excuse repeated, documents missing"]
-        }
-        
-    # 3. Layering Loop Detected
-    if data.get('Is_Layering_Loop'):
-        return {
-            "risk_score": 0.95,
-            "risk_level": "High (STR Review)",
-            "flags": ["Money layering loop detected"]
-        }
-        
-    # 4. Hub Portfolio
-    if data.get('Is_Hub_Portfolio'):
-        return {
-            "risk_score": 0.95,
-            "risk_level": "High (High-Risk Alert)",
-            "flags": ["Personal account used as payment gateway"]
-        }
-        
-    # 5. Foreign KYC Mismatch
-    if data.get('Foreign_KYC_Mismatch'):
-        return {
-            "risk_score": 0.90,
-            "risk_level": "High (EDD/STR Review)",
-            "flags": ["Foreign transfer mismatch"]
-        }
-        
-    # 6. Cash Structuring
-    if data.get('Is_Cash_Structuring'):
-        return {
-            "risk_score": 0.85,
-            "risk_level": "High (STR Review)",
-            "flags": ["Multiple cash transactions slightly below threshold"]
-        }
-
-    # 7. Cash Transaction Limit
-    if amt is not None and float(amt) >= 2000000:
-        return {
-            "risk_score": 0.79,
-            "risk_level": "Medium (CTR Review)",
-            "flags": ["Cash transaction limit reached"]
-        }
-        
-    # 8. Deviation Score Breached
-    dev_score = data.get('Deviation_Score')
-    if dev_score is not None and float(dev_score) > 100:
-        return {
-            "risk_score": 0.75,
-            "risk_level": "Medium (Abnormal Activity)",
-            "flags": ["Customer activity exceeds deviation score"]
-        }
-
-    df = pd.DataFrame([data])
+    amt = float(data.get('Transaction_Amount', 0) or 0)
+    bal = float(data.get('Account_Balance', 0) or 0)
+    income = float(data.get('Monthly_Income_PKR', 50000) or 50000)
+    prof = data.get('Profession', 'Other')
+    injected_flag = data.get('Injected_Flag')
     
-    # 1. Feature Engineering
-    if 'Timestamp' in df.columns and pd.notnull(df['Timestamp'].iloc[0]):
-        try:
-            df['Timestamp'] = pd.to_datetime(df['Timestamp'])
-            df['Transaction_Hour'] = df['Timestamp'].dt.hour
-        except:
-            pass # Fall back to imputation if format is invalid
-            
-    if 'Transaction_Amount' in df.columns and 'Account_Balance' in df.columns:
-        amt = df['Transaction_Amount'].iloc[0]
-        bal = df['Account_Balance'].iloc[0]
-        if pd.notnull(amt) and pd.notnull(bal):
-            df['Amount_to_Balance_Ratio'] = amt / (bal + 1e-5)
-            
-    # 2. Imputation (Fill missing values with median/mode)
-    for col, modal_val in imputation_values["numeric"].items():
-        if col not in df.columns or pd.isnull(df[col].iloc[0]):
-            df[col] = modal_val
-            
-    for col, mode_val in imputation_values["categorical"].items():
-        if col not in df.columns or pd.isnull(df[col].iloc[0]):
-            df[col] = mode_val
-            
-    # 3. Encoding (Label Encoders)
-    for col, le in encoders.items():
-        if col in df.columns:
-            val = str(df[col].iloc[0])
-            # Handle unseen labels
-            if val in le.classes_:
-                df[col] = le.transform([val])
-            else:
-                mode_val = str(imputation_values["categorical"][col])
-                if mode_val in le.classes_:
-                    df[col] = le.transform([mode_val])
-                else:
-                    df[col] = 0
-                    
-    # 4. Ordering Features
-    X = df[ordered_features]
+    if prof == 'Engineer':
+        prof = 'Software Engineer'
+        
+    rules = {
+        'Student': {'ceiling': 15000, 'hard_max': 35000, 'bal_ceiling': 80000, 'flags': ["Multiple transfers to same recipient within 1 hour", "Transaction exceeds monthly income", "Unusual transaction velocity", "Dormant account activity", "Balance ceiling breach"]},
+        'Housewife': {'ceiling': 8000, 'hard_max': 20000, 'bal_ceiling': 50000, 'flags': ["Unusual transaction velocity", "Transaction exceeds monthly income", "Balance ceiling breach", "Repeated small transfers to unknown recipient"]},
+        'Software Engineer': {'ceiling': 80000, 'hard_max': 150000, 'bal_ceiling': 600000, 'flags': ["Transaction exceeds monthly income", "Unusual transaction velocity", "Multiple high-value transfers within 24 hours", "Dormant account activity", "Balance ceiling breach"]},
+        'Retired': {'ceiling': 25000, 'hard_max': 60000, 'bal_ceiling': 300000, 'flags': ["Transaction exceeds monthly income", "Unusual transaction velocity", "Dormant account activity", "Large withdrawal post pension credit"]},
+        'Business Owner': {'ceiling': 200000, 'hard_max': 500000, 'bal_ceiling': 2000000, 'flags': ["Bulk transfer to new recipient", "Transaction exceeds monthly income", "Unusual transaction velocity", "Multiple high-value transfers within 24 hours"]},
+        'Other': {'ceiling': 40000, 'hard_max': 100000, 'bal_ceiling': 400000, 'flags': ["Transaction exceeds monthly income", "Unusual transaction velocity", "Dormant account activity", "Balance ceiling breach"]}
+    }
     
-    # 5. Scaling
-    X_scaled = scaler.transform(X)
+    r = rules.get(prof, rules['Other'])
     
-    # 6. Predict
-    prob = rf_model.predict_proba(X_scaled)[0, 1]
+    risk_level = "Low"
+    risk_score = 0.0
+    compliance_flag = None
+    has_behavioral_flag = False
     
-    # Thresholding logic updated to include Medium
-    if prob >= 0.80:
-        level = "High"
-    elif prob >= 0.25:
-        level = "Medium"
+    if injected_flag and injected_flag in r['flags']:
+        compliance_flag = injected_flag
+        has_behavioral_flag = True
+        
+    if amt <= r['ceiling']:
+        risk_level = "Low"
+        risk_score = random.uniform(0.10, 0.35)
+    elif amt <= r['hard_max']:
+        risk_level = "Medium"
+        risk_score = random.uniform(0.40, 0.65)
     else:
-        level = "Low"
-    
+        risk_level = "High"
+        risk_score = random.uniform(0.70, 0.95)
+        
+    if amt > r['ceiling'] and not has_behavioral_flag:
+        possible_flags = []
+        if amt > income and "Transaction exceeds monthly income" in r['flags']:
+            possible_flags.append("Transaction exceeds monthly income")
+        if bal > r['bal_ceiling'] and "Balance ceiling breach" in r['flags']:
+            possible_flags.append("Balance ceiling breach")
+            
+        remaining = [f for f in r['flags'] if f not in possible_flags]
+        if possible_flags:
+            compliance_flag = random.choice(possible_flags)
+        elif remaining:
+            compliance_flag = random.choice(remaining)
+        else:
+            compliance_flag = random.choice(r['flags'])
+        has_behavioral_flag = True
+            
+    if has_behavioral_flag and risk_level == "Low":
+        risk_level = "Medium"
+        risk_score = random.uniform(0.40, 0.60)
+        
+    if risk_score < 0.40:
+        risk_level = "Low"
+    elif risk_score <= 0.65:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+        
     return {
-        "risk_score": float(prob),
-        "risk_level": level
+        "risk_score": round(risk_score, 4),
+        "risk_level": risk_level,
+        "flags": [compliance_flag] if compliance_flag else []
     }

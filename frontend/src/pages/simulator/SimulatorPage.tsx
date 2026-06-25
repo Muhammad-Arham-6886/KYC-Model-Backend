@@ -58,42 +58,43 @@ export const SimulatorPage: React.FC = () => {
         const income = selectedProfile && selectedProfile.expectedIncome ? selectedProfile.expectedIncome : 50000;
 
         const rules: Record<string, any> = {
-            'Student': { ceiling: 15000, hard_max: 35000 },
-            'Housewife': { ceiling: 8000, hard_max: 20000 },
-            'Engineer': { ceiling: 80000, hard_max: 150000 },
-            'Retired': { ceiling: 25000, hard_max: 60000 },
-            'Business Owner': { ceiling: 200000, hard_max: 500000 },
-            'Other': { ceiling: 40000, hard_max: 100000 }
+            'Student': { ceiling: 15000, hard_max: 35000, bal_mult: [2, 3], flags: ["Multiple transfers to same recipient within 1 hour", "Transaction exceeds monthly income", "Unusual transaction velocity", "Dormant account activity", "Balance ceiling breach"] },
+            'Housewife': { ceiling: 8000, hard_max: 20000, bal_mult: [2, 3], flags: ["Unusual transaction velocity", "Transaction exceeds monthly income", "Balance ceiling breach", "Repeated small transfers to unknown recipient"] },
+            'Software Engineer': { ceiling: 80000, hard_max: 150000, bal_mult: [3, 4], flags: ["Transaction exceeds monthly income", "Unusual transaction velocity", "Multiple high-value transfers within 24 hours", "Dormant account activity", "Balance ceiling breach"] },
+            'Retired': { ceiling: 25000, hard_max: 60000, bal_mult: [3, 4], flags: ["Transaction exceeds monthly income", "Unusual transaction velocity", "Dormant account activity", "Large withdrawal post pension credit"] },
+            'Business Owner': { ceiling: 200000, hard_max: 500000, bal_mult: [3, 5], flags: ["Bulk transfer to new recipient", "Transaction exceeds monthly income", "Unusual transaction velocity", "Multiple high-value transfers within 24 hours"] },
+            'Other': { ceiling: 40000, hard_max: 100000, bal_mult: [2, 4], flags: ["Transaction exceeds monthly income", "Unusual transaction velocity", "Dormant account activity", "Balance ceiling breach"] }
         };
-        const profRule = rules[occupation] || rules['Other'];
+        let mappedOcc = occupation;
+        if (mappedOcc === 'Engineer') mappedOcc = 'Software Engineer';
+        const profRule = rules[mappedOcc] || rules['Other'];
 
-        // Generate organic amount
+        // Generate organic amount and anomalies (15% chance)
+        const isAnomaly = Math.random() < 0.15;
         let generatedAmount = 0;
-        if (Math.random() < 0.15) {
-            // Anomaly amount
-            generatedAmount = Math.floor(Math.random() * (profRule.hard_max - profRule.ceiling)) + profRule.ceiling;
-        } else {
-            // Normal amount
-            if (Math.random() < 0.6) {
-                generatedAmount = Math.floor(Math.random() * (profRule.ceiling * 0.3 - 500)) + 500;
+        let injectedFlag = null;
+
+        if (isAnomaly) {
+            if (Math.random() < 0.5) {
+                // High amount anomaly
+                generatedAmount = Math.floor(Math.random() * (profRule.hard_max * 1.5 - profRule.ceiling)) + profRule.ceiling;
             } else {
-                generatedAmount = Math.floor(Math.random() * (profRule.ceiling - profRule.ceiling * 0.3)) + (profRule.ceiling * 0.3);
+                // Behavioral anomaly on low amount
+                generatedAmount = Math.floor(Math.random() * (profRule.ceiling * 0.8)) + 100;
+                injectedFlag = profRule.flags[Math.floor(Math.random() * profRule.flags.length)];
             }
+        } else {
+            // Normal
+            generatedAmount = Math.floor(Math.random() * (profRule.ceiling * 0.8)) + 100;
         }
         
-        // Balance = 2x to 5x of expected income
-        const accountBalance = Math.floor(income * (Math.random() * 3 + 2));
+        // Balance based on profession multiplier
+        const minMult = profRule.bal_mult[0];
+        const maxMult = profRule.bal_mult[1];
+        const accountBalance = Math.floor(income * (Math.random() * (maxMult - minMult) + minMult));
 
         const bankNames = ['MCB', 'UBL', 'HBL', 'Allied Bank', 'Meezan'];
         const types = ['POS', 'E-Commerce', 'ATM', 'Bank_Transfer'];
-        
-        const rand = Math.random();
-        let complianceFlags = {};
-        if (rand < 0.03) complianceFlags = { Is_Layering_Loop: true };
-        else if (rand < 0.06) complianceFlags = { Foreign_KYC_Mismatch: true };
-        else if (rand < 0.09) complianceFlags = { Is_Hub_Portfolio: true };
-        else if (rand < 0.12) complianceFlags = { Property_Doc_Missing: true };
-        else if (rand < 0.15) complianceFlags = { Is_Cash_Structuring: true };
 
         const mlPayload = {
           Customer_Name: customerName,
@@ -104,7 +105,9 @@ export const SimulatorPage: React.FC = () => {
           Device_Type: ['Mobile', 'Desktop', 'Tablet'][Math.floor(Math.random() * 3)],
           Bank_Name: bankNames[Math.floor(Math.random() * bankNames.length)],
           Is_Weekend: randomDate.getDay() % 6 === 0 ? 1 : 0,
-          ...complianceFlags
+          Profession: mappedOcc,
+          Monthly_Income_PKR: income,
+          Injected_Flag: injectedFlag
         };
 
         try {
