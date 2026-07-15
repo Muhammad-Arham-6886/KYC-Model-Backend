@@ -53,7 +53,7 @@ async def delete_customer_history(customer_name: str):
         print(f"Error deleting customer history: {e}")
         return {"error": str(e)}
 
-@router.delete("/history/transaction/{created_at}")
+@router.delete("/history/transaction/{created_at:path}")
 async def delete_transaction(created_at: str):
     try:
         with engine.begin() as conn:
@@ -63,7 +63,7 @@ async def delete_transaction(created_at: str):
         print(f"Error deleting transaction: {e}")
         return {"error": str(e)}
 
-@router.put("/history/review/{created_at}")
+@router.put("/history/review/{created_at:path}")
 async def review_transaction(created_at: str):
     try:
         with engine.begin() as conn:

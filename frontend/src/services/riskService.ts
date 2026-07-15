@@ -117,6 +117,7 @@ export const riskService = {
       await apiClient.put(`/risk/history/review/${encodeURIComponent(createdAt)}`);
     } catch (error) {
       console.error('Error reviewing transaction:', error);
+      throw error;
     }
   },
 
