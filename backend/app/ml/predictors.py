@@ -5,7 +5,12 @@ import pandas as pd
 import numpy as np
 
 # Resolve path to the root of the testing model directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+if os.environ.get("SPACE_ID") or os.path.exists("/app/rf_model.pkl"):
+    # Hugging Face Space Docker Environment
+    BASE_DIR = "/app"
+else:
+    # Local Windows Environment
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 MODEL_PATH = os.path.join(BASE_DIR, "rf_model.pkl")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
