@@ -111,6 +111,25 @@ export const riskService = {
     }
   },
 
+  // Mark transaction as reviewed
+  async reviewTransaction(createdAt: string): Promise<void> {
+    try {
+      await apiClient.put(`/risk/history/review/${encodeURIComponent(createdAt)}`);
+    } catch (error) {
+      console.error('Error reviewing transaction:', error);
+    }
+  },
+
+  // Send real SAR email to State Bank
+  async sendSAREmail(emailData: any): Promise<void> {
+    try {
+      await apiClient.post('/email/sar', emailData);
+    } catch (error) {
+      console.error('Error sending SAR email:', error);
+      throw error;
+    }
+  },
+
   // Get suspicious activity log
   async getSuspiciousActivities(): Promise<any[]> {
     try {

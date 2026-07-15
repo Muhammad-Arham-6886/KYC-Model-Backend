@@ -14,11 +14,31 @@ interface SystemLogsState {
   logs: SystemLog[];
 }
 
-const initialState: SystemLogsState = {
-  logs: [
+const loadLogs = (): SystemLog[] => {
+  try {
+    const saved = localStorage.getItem('system_logs');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Failed to load system logs from local storage', e);
+  }
+  return [
     { id: generateId(), action: 'User Login', user: 'Admin', time: new Date(Date.now() - 5000).toISOString() },
     { id: generateId(), action: 'System Initialized', user: 'System', time: new Date(Date.now() - 6000).toISOString() },
-  ],
+  ];
+};
+
+const saveLogs = (logs: SystemLog[]) => {
+  try {
+    localStorage.setItem('system_logs', JSON.stringify(logs));
+  } catch (e) {
+    console.error('Failed to save system logs to local storage', e);
+  }
+};
+
+const initialState: SystemLogsState = {
+  logs: loadLogs(),
 };
 
 export const systemLogsSlice = createSlice({
@@ -35,9 +55,11 @@ export const systemLogsSlice = createSlice({
       if (state.logs.length > 200) {
         state.logs = state.logs.slice(0, 200);
       }
+      saveLogs(state.logs);
     },
     clearLogs: (state) => {
       state.logs = [];
+      saveLogs(state.logs);
     },
   },
 });

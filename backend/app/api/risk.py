@@ -55,3 +55,13 @@ async def delete_transaction(created_at: str):
     except Exception as e:
         print(f"Error deleting transaction: {e}")
         return {"error": str(e)}
+
+@router.put("/history/review/{created_at}")
+async def review_transaction(created_at: str):
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("UPDATE predictions SET is_reviewed = 1 WHERE created_at = :ca"), {"ca": created_at})
+        return {"message": "Transaction marked as reviewed"}
+    except Exception as e:
+        print(f"Error reviewing transaction: {e}")
+        return {"error": str(e)}

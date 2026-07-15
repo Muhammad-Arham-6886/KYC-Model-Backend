@@ -12,6 +12,7 @@ export interface KYCProfile {
   riskLevel: 'Low' | 'Medium' | 'High';
   lastUpdated: string;
   documents: string[];
+  handledSuggestions?: string[];
 }
 
 interface KYCState {

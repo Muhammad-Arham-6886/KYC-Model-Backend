@@ -1,0 +1,74 @@
+{
+  "hash": "192680db",
+  "configHash": "1252e18d",
+  "lockfileHash": "51878643",
+  "browserHash": "95a9e0b4",
+  "optimized": {
+    "@ant-design/icons": {
+      "src": "../../node_modules/@ant-design/icons/es/index.js",
+      "file": "@ant-design_icons.js",
+      "fileHash": "f027c99d",
+      "needsInterop": false
+    },
+    "@reduxjs/toolkit": {
+      "src": "../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs",
+      "file": "@reduxjs_toolkit.js",
+      "fileHash": "67fb7481",
+      "needsInterop": false
+    },
+    "antd": {
+      "src": "../../node_modules/antd/es/index.js",
+      "file": "antd.js",
+      "fileHash": "807ce9d7",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "811fffe3",
+      "needsInterop": true
+    },
+    "react-redux": {
+      "src": "../../node_modules/react-redux/dist/react-redux.mjs",
+      "file": "react-redux.js",
+      "fileHash": "be2cea4b",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "9339b809",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "67d24e4d",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "452d4ffc",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "client-BAAgFwVU": {
+      "file": "client-BAAgFwVU.js",
+      "isDynamicEntry": false
+    },
+    "es-CPl1R1Zy": {
+      "file": "es-CPl1R1Zy.js",
+      "isDynamicEntry": false
+    },
+    "react-DOLv65KA": {
+      "file": "react-DOLv65KA.js",
+      "isDynamicEntry": false
+    },
+    "react-dom-B5FdNCyq": {
+      "file": "react-dom-B5FdNCyq.js",
+      "isDynamicEntry": false
+    }
+  }
+}
