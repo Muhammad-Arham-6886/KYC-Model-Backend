@@ -6,6 +6,13 @@ import pandas as pd
 
 router = APIRouter()
 
+# Ensure the is_reviewed column exists for backward compatibility with older SQLite databases
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE predictions ADD COLUMN is_reviewed INTEGER DEFAULT 0"))
+except Exception:
+    pass # Column already exists or table does not exist yet
+
 @router.post("/score", response_model=RiskResponse)
 async def risk_score(request: TransactionRequest):
     # Convert incoming payload to dictionary
@@ -64,4 +71,6 @@ async def review_transaction(created_at: str):
         return {"message": "Transaction marked as reviewed"}
     except Exception as e:
         print(f"Error reviewing transaction: {e}")
-        return {"error": str(e)}
+        # Return 500 so the frontend knows it failed
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
