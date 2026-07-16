@@ -3,8 +3,6 @@ import { Modal, Typography, Button, message, Tag, Spin } from 'antd';
 import { DownloadOutlined, SendOutlined, SafetyCertificateOutlined, WarningOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { addLog } from '../../store/slices/systemLogsSlice';
-import html2pdf from 'html2pdf.js';
-
 const { Title, Text, Paragraph } = Typography;
 
 interface SARReportModalProps {
@@ -19,19 +17,10 @@ export const SARReportModal: React.FC<SARReportModalProps> = ({ open, alert, onC
   const dispatch = useAppDispatch();
 
   const handleDownloadPDF = () => {
-    const element = document.getElementById('sar-printable-area');
-    
-    if (!element) return;
-    
-    const opt = {
-      margin:       0.5,
-      filename:     `SAR_Report_${alert?.customerName || 'Unknown'}_${new Date().getTime()}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save();
+    // The previous html2pdf.js implementation was hanging indefinitely during DOM parsing.
+    // Switching to the native browser print API which is more robust and produces vector-quality PDFs.
+    // CSS print media queries in index.css ensure only the modal is printed.
+    window.print();
   };
 
   const handleTransmit = () => {
@@ -146,20 +135,20 @@ export const SARReportModal: React.FC<SARReportModalProps> = ({ open, alert, onC
         {/* Subject Details */}
         <div className="mb-10">
           <Title level={5} className="uppercase tracking-widest text-slate-400 border-b-2 border-slate-100 pb-2 mb-6 text-sm">Subject Information</Title>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 bg-slate-50 p-6 rounded-lg border border-slate-100">
-            <div className="flex flex-col">
+          <div className="flex flex-wrap bg-slate-50 p-6 rounded-lg border border-slate-100">
+            <div className="w-1/2 flex flex-col mb-6 pr-4">
               <span className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Customer Name</span>
               <span className="font-bold text-xl text-slate-800">{alert.customerName || 'Unknown'}</span>
             </div>
-            <div className="flex flex-col">
+            <div className="w-1/2 flex flex-col mb-6 pl-4">
               <span className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Account Type</span>
               <span className="text-base text-slate-700 font-medium pt-1">Standard Personal</span>
             </div>
-            <div className="flex flex-col mt-2">
+            <div className="w-1/2 flex flex-col pr-4">
               <span className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">KYC Status</span>
               <span className="text-orange-600 font-bold text-sm bg-orange-50 self-start px-3 py-1 rounded">Enhanced Due Diligence Required</span>
             </div>
-            <div className="flex flex-col mt-2">
+            <div className="w-1/2 flex flex-col pl-4">
               <span className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">IP Location / Flag</span>
               <span className="text-base text-slate-700 font-medium pt-1">Multiple / Anomalous</span>
             </div>
