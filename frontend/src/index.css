@@ -89,34 +89,23 @@ body {
 
 /* Print Styles for SAR Report Modal */
 @media print {
-  body > * {
-    display: none !important;
+  body * {
+    visibility: hidden;
   }
-  .ant-modal-root {
-    display: block !important;
+  #sar-printable-area, #sar-printable-area * {
+    visibility: visible;
   }
-  .ant-modal-wrap {
-    position: static !important;
-    overflow: visible !important;
-    display: block !important;
-  }
-  .ant-modal {
-    top: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-shadow: none !important;
-  }
-  .ant-modal-content {
-    box-shadow: none !important;
-    padding: 0 !important;
-    background: transparent !important;
+  #sar-printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
   .ant-modal-mask, .ant-modal-close, .ant-modal-footer {
     display: none !important;
   }
-  /* Remove any page margins to prevent extra blank pages */
   @page {
     margin: 0.5cm;
   }
